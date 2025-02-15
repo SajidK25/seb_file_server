@@ -14,6 +14,26 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     files = db.relationship('File', backref='owner', lazy=True)
 
+    # Flask-Login attributes
+    @property
+    def is_active(self):
+        """Return True if the user account is active."""
+        return True  # Set to False if you implement account deactivation
+
+    @property
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return True
+
+    @property
+    def is_anonymous(self):
+        """Return False for authenticated users."""
+        return False
+
+    def get_id(self):
+        """Return the unique identifier for the user."""
+        return str(self.id)
+    
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 

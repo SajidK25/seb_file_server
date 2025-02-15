@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -10,11 +11,21 @@ from app.auth import auth_bp
 from app.teachers import teachers_bp
 from app.students import students_bp
 from app.models import db
+from app.models import User
+
 
 # db = SQLAlchemy()
 migrate = Migrate()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+login_manager = LoginManager()
+
+# Specify the login view for unauthorized access
+login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 limiter = Limiter(
     key_func=get_remote_address,
@@ -31,6 +42,7 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
+    login_manager.init_app(app)
 
     # Register blueprints
 

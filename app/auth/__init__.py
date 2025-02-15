@@ -1,8 +1,7 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
-from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
+from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import db, User
-from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__, template_folder='templates/auth')
 
@@ -17,19 +16,11 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password_hash, password):
-            # Create JWT token
-            access_token = create_access_token(identity={
-                'id': user.id,
-                'username': user.username,
-                'role': user.role
-            }, expires_delta=timedelta(hours=1))
-
-            # Set JWT token in cookies
-            response = redirect(url_for('teachers.teacher_dashboard') if user.role == 'teacher' else url_for('students.student_portal'))
-            set_access_cookies(response, access_token)
+            # Log the user in
+            login_user(user)
 
             flash('Login successful!', 'success')
-            return response
+            return redirect(url_for('teachers.teacher_dashboard') if user.role == 'teacher' else url_for('students.student_portal'))
         else:
             flash('Invalid email or password.', 'danger')
 
@@ -56,7 +47,7 @@ def register():
             return redirect(url_for('auth.register'))
 
         # Hash the password and create a new user
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         new_user = User(username=username, email=email, password_hash=hashed_password, role=role)
         db.session.add(new_user)
         db.session.commit()
@@ -67,9 +58,9 @@ def register():
     return render_template('register.html')
 
 @auth_bp.route('/logout', methods=['GET'])
+@login_required
 def logout():
-    """Handle logout by clearing JWT cookies."""
-    response = redirect(url_for('auth.login'))
-    unset_jwt_cookies(response)
+    """Handle logout by clearing the session."""
+    logout_user()
     flash('You have been logged out.', 'success')
-    return response
+    return redirect(url_for('auth.login'))
