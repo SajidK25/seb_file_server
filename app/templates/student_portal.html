@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Student Portal{% endblock %}
+{% block content %}
+<h1 class="mb-4">Student Portal</h1>
+
+<h2>Upload a File</h2>
+<form action="/students/upload" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="file" class="form-label">Choose File</label>
+        <input type="file" class="form-control" id="file" name="file" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+<h2 class="mt-5">My Uploaded Files</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Upload Date</th>
+            <th>Approval Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+            <tr>
+                <td>{{ file.filename }}</td>
+                <td>{{ file.upload_date }}</td>
+                <td>{{ 'Approved' if file.is_approved else 'Pending' }}</td>
+                <td>
+                    {% if file.is_approved %}
+                        <a href="/students/files/{{ file.id }}/download" class="btn btn-success btn-sm">Download</a>
+                    {% else %}
+                        <span class="text-muted">Not Approved</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

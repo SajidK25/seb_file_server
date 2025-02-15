@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+<h1 class="mb-4">Teacher Dashboard</h1>
+
+<h2>Uploaded Files</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Uploaded By</th>
+            <th>Upload Date</th>
+            <th>Approval Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+            <tr>
+                <td>{{ file.filename }}</td>
+                <td>{{ file.owner }}</td>
+                <td>{{ file.upload_date }}</td>
+                <td>{{ 'Approved' if file.is_approved else 'Pending' }}</td>
+                <td>
+                    {% if not file.is_approved %}
+                        <form action="/teachers/files/{{ file.id }}/approve" method="POST" class="d-inline">
+                            <button class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    {% endif %}
+                    <form action="/teachers/files/{{ file.id }}" method="POST" class="d-inline">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Student Activity</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Files Uploaded</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+            <tr>
+                <td>{{ student.username }}</td>
+                <td>{{ student.uploaded_files }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
