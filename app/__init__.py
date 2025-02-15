@@ -15,7 +15,11 @@ from app.models import db
 migrate = Migrate()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-limiter = Limiter(key_func=get_remote_address)
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri="redis://localhost:6379/0"
+    )
 
 def create_app():
     app = Flask(__name__)
