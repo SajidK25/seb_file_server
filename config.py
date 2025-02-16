@@ -1,6 +1,7 @@
 import os
 
 class Config:
+    UPLOAD_FOLDER = 'uploads'
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/seb_file_server')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
